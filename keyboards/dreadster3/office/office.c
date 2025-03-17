@@ -74,6 +74,7 @@ bool process_detected_host_os_kb(os_variant_t detected_os) {
     switch (detected_os) {
         case OS_MACOS:
             oled_write_ln("MacOS", false);
+            break;
         case OS_IOS:
             oled_write_ln("Apple", false);
             break;
