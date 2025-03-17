@@ -3,6 +3,42 @@
 
 #include QMK_KEYBOARD_H
 
+enum custom_macros { M_NDESK = SAFE_RANGE, M_PDESK };
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    static keyrecord_t *previous_record  = NULL;
+    static uint16_t     previous_keycode = 0;
+
+    switch (keycode) {
+        case M_NDESK:
+            // Debounces events
+            if (record->event.pressed) {
+                if (previous_record != NULL) {
+                    if (previous_record->event.time == record->event.time && previous_keycode == keycode) {
+                        break;
+                    }
+                }
+                SEND_STRING(SS_LCTL(SS_LGUI(SS_TAP(X_RGHT))));
+                previous_record = record;
+            }
+            break;
+        case M_PDESK:
+            // Debounces events
+            if (record->event.pressed) {
+                if (previous_record != NULL) {
+                    if (previous_record->event.time == record->event.time && keycode == previous_keycode) {
+                        break;
+                    }
+                }
+                SEND_STRING(SS_LCTL(SS_LGUI(SS_TAP(X_LEFT))));
+                previous_record = record;
+            }
+            break;
+    }
+
+    return true;
+}
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT(
@@ -30,9 +66,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef ENCODER_MAP_ENABLE
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][NUM_DIRECTIONS] = {
-[0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU), ENCODER_CCW_CW(KC_MPRV, KC_MNXT)},
-[1] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS)},
-[2] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_TRNS, KC_TRNS)},
+[0] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU), ENCODER_CCW_CW(M_NDESK, M_PDESK)},
+[1] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_MNXT, KC_MPRV)},
+[2] = { ENCODER_CCW_CW(KC_TRNS, KC_TRNS), ENCODER_CCW_CW(KC_MNXT, KC_MPRV)},
 };
 #endif
 // clang-format on
